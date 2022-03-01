@@ -1,0 +1,72 @@
+{
+    "accounts": [
+        {
+            "account": "8004838314",
+            "status": "blocked",
+            "type": "Advance Pay",
+            "crBlock": "true",
+            "ccBlock": "true",
+            "policies": ["true", "true", "true", "true"], 
+            "bna": {
+                "name1": "AP",
+                "name2": "IVR",
+                "address1": "PO BOX 1234",
+                "address2": "",
+                "zip": "12345",
+                "city": "Reston",
+                "state": "VA",
+                "phone1": "8004838314",
+                "phone2": "",
+                "email": "",
+                "tax": "",
+                "passcode": "0000",
+                "notes": "IVR NUMBER - DO NOT SET UP",
+                "lec": "",
+                "facility": "CA_DOC-Valley State Prison (CA28)"
+            },
+            "comments": [["11/20/2017", "CARES User kristine.carter accessed the account"], ["07/12/2021", "CARES User kristine.carter accessed the account"], ["02/28/2022", "CARES User kristine.carter accessed the account"]],
+            "transactions": [["11/20/2017", "NewAccount", "kristine.carter", "0.00", ""], "07/12/2021", ["Deposit", "AdvancePayPortal", "25.00", "MTCN 5930627808142558"], ["07/13/2021", "AdjustmentDecrease", "GTL\\kristine.carter", "25.00", "tf funds from 800-483-8314 to correct number of 716-893-9079"]],
+            "calls": [["02/27/2022", "CA28", "5596630999", "", "0m 0s", "0.00", "0.00", "L2", "85", "9", "H"]]
+        },
+        {
+            "account": "8889884768",
+            "status": "blocked",
+            "type": "Advance Pay",
+            "crBlock": "true",
+            "ccBlock": "true",
+            "policies": ["true", "true", "true", "true"], 
+            "bna": {
+                "name1": "Trust",
+                "name2": "IVR",
+                "address1": "PO BOX 1234",
+                "address2": "",
+                "zip": "12345",
+                "city": "Reston",
+                "state": "VA",
+                "phone1": "8889884768",
+                "phone2": "",
+                "email": "",
+                "tax": "",
+                "passcode": "0000",
+                "notes": "IVR NUMBER - DO NOT SET UP",
+                "lec": "",
+                "facility": "CA_DOC-Valley State Prison (CA28)"
+            },
+            "comments": [["05/01/2018", "CARES User kristine.carter accessed the account"], ["03/03/2022", "CARES User kristine.carter accessed the account"], ["03/03/2022", "CARES User kristine.carter accessed the account"]],
+            "transactions": [["05/01/2018", "NewAccount", "kristine.carter", "0.00", ""], "07/12/2021", ["Deposit", "AdvancePayPortal", "25.00", "MTCN 4520627805142359"], ["03/03/2022", "AdjustmentDecrease", "GTL\\kristine.carter", "25.00", "tf funds from 888-988-4768 to correct number of 716-893-9079"]],
+            "calls": [["02/28/2022", "CA28", "5596630999", "", "0m 0s", "0.00", "0.00", "L2", "85", "9", "H"]]
+        }
+    ],
+    "facilities": [
+        {
+            "subId": "CA28",
+            "fName": "CA_DOC-Valley State Prison",
+            "siteId": "5661",
+            "costCenter": "CA28",
+            "inmateSystem": "Focus Centralized HMP",
+            "phoneSystem": "GTL",
+            "rate": "0.03",
+            "fee": "0.00"
+        }
+    ]
+}
