@@ -4,7 +4,83 @@ import mkDom from "./mkDom";
 /* globals */
 const mainC = document.querySelector('#maincontent');
 const cData = data;
-let account = 0;
+let aIndex = false;
+
+// popup function
+function testAlert(){
+    alert('yes');
+}
+
+function createPopup(top, info, confirm="OK", cancel="Cancel", buttonFunction=testAlert, css=['popup']){
+    // create a see-through gray background that prevents the user from clicking other things
+    const fader = document.createElement('div');
+    fader.setAttribute('id', 'fader');
+
+    // creates the popup
+    const newPopup = document.createElement('div');
+    for (let i = 0; i < css.length; i+=1){
+        newPopup.classList.add(css[i]);
+    }
+    const topbar = document.createElement('div');
+    topbar.classList.add('grab');
+    topbar.innerHTML = `<strong>📑 ${top}</strong>`;
+    const contentSpan = document.createElement('span');
+    const content = document.createElement('div');
+    content.classList.add('flex-col');
+    content.classList.add('margin-bottom');
+    content.appendChild(info);
+    const btnDiv = document.createElement('div');
+    const ok = document.createElement('button');
+    ok.innerText = confirm;
+    const close = document.createElement('button');
+    close.innerText = cancel;
+    newPopup.appendChild(topbar);
+    contentSpan.appendChild(content);
+    btnDiv.appendChild(ok);
+    btnDiv.appendChild(close);
+    btnDiv.classList.add('flex');
+    contentSpan.appendChild(btnDiv);
+    newPopup.appendChild(contentSpan);
+
+    const container = document.body;
+    container.appendChild(fader);
+    container.appendChild(newPopup);
+
+    function deletePopup(){
+        container.removeChild(fader);
+        container.removeChild(newPopup);
+    };
+
+    ok.addEventListener('click', ()=>{
+        buttonFunction();
+        deletePopup();
+    });
+
+    close.addEventListener('click', ()=>{
+        deletePopup();
+    });
+
+    function moveItem(node){
+        // signal that the mouse is being held down
+        let mouseDown = true;
+        const offset = node.clientWidth / 2;
+
+        onmousemove = function(e){
+            if (mouseDown === true){
+                node.style.left = `${e.clientX - offset}px`;
+                node.style.top = `${e.clientY - 20}px`;
+            }
+        }
+
+        onmouseup = function(){
+            mouseDown = false;
+            return;
+        }
+    }
+    topbar.addEventListener('mousedown', (e)=>{
+        moveItem(newPopup);
+    });
+}
 
 /* create the sidebar content */
 const sidebar = document.querySelector('#sidebar');
@@ -27,10 +103,18 @@ sidebar.appendChild(sidebarDeposit);
 const sidebarCreateAccount = mkDom('a', 'Create Account', [['href', '#']], []);
 sidebar.appendChild(sidebarCreateAccount);
 
+function updateAs(account){
+    console.log(account);
+    for (let key in account.bna){
+        document.querySelector(`#${key}`).value = account.bna[key];
+    }
+}
+
 sidebarBtn.addEventListener('click', ()=>{
     for (let i = 0; i < cData.accounts.length; i += 1){
         if (sidebarInput.value === cData.accounts[i].account){
-            account = cData.account[i];
+            aIndex = cData.accounts[i];
+            updateAs(aIndex);
             return;
         }
     }
@@ -46,14 +130,14 @@ function accountSummary(){
     const asR1 = mkDom('li');
 
     // status
-    const statusO = '<option>Active</option><option>Returned Mail</option><option>LEC/Inactive</option><option>Blocked</option>';
-    const status = mkDom('select', statusO, [], [], asR1);
+    const statusO = '<option>Active</option><option>Returned Mail</option><option selected="true">LEC/Inactive</option><option>Blocked</option>';
+    const status = mkDom('select', statusO, [['id', 'status']], [], asR1);
 
     // account type
     const atC = mkDom('div');
     mkDom('label', 'Account Type: ', [], [], atC);
     const accountTypeO = '<option></option><option>Advance Pay</option><option>Direct Bill</option><option>Friends and Family</option><option>APOC</option>';
-    const accountType = mkDom('select', accountTypeO, [], [], atC);
+    const accountType = mkDom('select', accountTypeO, [['id', 'type']], [], atC);
     asR1.appendChild(atC);
 
     // i icon andshow contract exceptions
@@ -67,7 +151,7 @@ function accountSummary(){
 
     // phone indicator
     const piC = mkDom('div');
-    mkDom('label', 'Phone Indicator: ', [], [], piC);
+    mkDom('label', 'Phone Indicator: ', [['id', 'indicator']], [], piC);
     const piO = '<option>Cell Phone</option><option>Land Line</option><option>No Override</option><option>Not Indicated</option><option>Block</option>';
     mkDom('select', piO, [], [], piC);
     asR2.appendChild(piC);
@@ -89,7 +173,7 @@ function accountSummary(){
 
     // next row
     const asR3 = mkDom('li');
-    mkDom('label', 'Customer Block Requested: ', [], [], asR3);
+    mkDom('label', 'Customer Block Requested: ', [['id', 'crBlock']], [], asR3);
     const cbrCheck = mkDom('input', false, [['type', 'checkbox']], [], asR3);
 
     // next row
@@ -134,7 +218,7 @@ function accountSummary(){
 
     // credit card block
     const ccbC = mkDom('div');
-    mkDom('label', 'Credit Card Block: ', [], [], ccbC);
+    mkDom('label', 'Credit Card Block: ', [['id', 'ccBlock']], [], ccbC);
     const ccb = mkDom('input', false, [['type', 'checkbox']], [], ccbC);
     asR6.appendChild(ccbC);
 
@@ -152,7 +236,7 @@ function accountSummary(){
     const bnaC = mkDom('div', false, [['id', 'as-bnaT']]);
     const bnaL = mkDom('div', false, [['id', 'as-bnaL']]);
     bnaC.appendChild(bnaL);
-    const bnaR = mkDom('div', false);
+    const bnaR = mkDom('div', false, [['id', 'as-bnaR']]);
     bnaC.appendChild(bnaR);
     const bnaB = mkDom('div', false, [['id', 'as-bnaB']]);
     const bnaBt = mkDom('div', false);
@@ -165,35 +249,225 @@ function accountSummary(){
     mainC.appendChild(asUl);
 
     // bna L
-    function mkInput(label, dc=bnaL){
+    function mkInput(label, dc=bnaL, type="input"){
         const div = document.createElement('div');
         div.classList.add('input-container');
         mkDom('label', `${label}: `, [], [], div);
-        const input = mkDom('input', false, [['type', 'input']]);
+        const input = mkDom('input', false, [['type', type]]);
         div.appendChild(input);
         dc.appendChild(div);
         return input;
     };
 
+    // icon src
+    const checkIcon = './img/yes.gif';
+    const triIcon = './img/warning.png';
+    const errorIcon = './img/error.gif';
+
+    // form items
     const fName = mkInput('First Name');
+    fName.setAttribute('id', 'name1');
     const lName = mkInput('Last Name');
+    lName.setAttribute('id', 'name2')
     const address1 = mkInput('Address 1');
+    address1.setAttribute('data', 'address');
+    address1.setAttribute('id', 'address1');
     const address2 = mkInput('Address 2');
+    address2.setAttribute('id', 'address2');
     const zip = mkInput('Zip Code');
+    zip.setAttribute('data', 'address');
+    zip.setAttribute('id', 'zip');
+    zip.classList.add('half-width');
     const cityStateC1 = mkDom('div', false, [['id', 'city-state-container']], ['input-container']);
     bnaL.appendChild(cityStateC1);
     mkDom('label', 'City, State: ', [], [], cityStateC1);
     const cityStateC2 = mkDom('div', false, [['id', 'city-state-sub']], ['split-input']);
     cityStateC1.appendChild(cityStateC2);
-    const city = mkDom('input', false, [['type', 'text']]);
+    const city = mkDom('input', false, [['type', 'text'], ['id', 'city']]);
+    city.setAttribute('data', 'address');
     cityStateC2.appendChild(city);
-    const state = mkDom('input', false, [['type', 'text']]);
+    const state = mkDom('input', false, [['type', 'text'], ['id', 'state']]);
+    state.setAttribute('data', 'address');
     cityStateC2.appendChild(state);
+    const addressIconC = mkDom('div');
+    const addressIcon = mkDom('img', 'false', [['src', errorIcon]]);
+    addressIcon.setAttribute('id', 'addressIcon');
+    addressIcon.classList.add('ah-activator');
+    addressIconC.appendChild(addressIcon);
+    const hoverShape = mkDom('div', false, [], [['popup-shape']]);
+    const aHoverMenu = mkDom('div', false, [['id', 'address-validation-popup']]);
+    hoverShape.appendChild(aHoverMenu);
+    addressIconC.appendChild(hoverShape);
+    const ahmTop = mkDom('div', 'close');
+    ahmTop.addEventListener('click', ()=>{
+        hoverShape.classList.toggle('visible');
+    });
+    aHoverMenu.appendChild(ahmTop);
+    const ahmContent = mkDom('div', 'Unable to validate address.');
+    aHoverMenu.appendChild(ahmContent);
+    addressIcon.addEventListener('click', ()=>{
+        // when the address icon is clicked, it makes the hover menu visible
+        hoverShape.classList.toggle('visible');
+    });
+    cityStateC2.appendChild(addressIconC);
     const phone1 = mkInput('Phone Number');
+    phone1.setAttribute('id', 'phone1');
     const phone2 = mkInput('Alt Number');
+    phone2.setAttribute('id', 'phone2');
     const email = mkInput('Email');
+    email.setAttribute('id', 'email');
     const tax = mkInput('Federal Tax ID');
+    tax.setAttribute('id', 'tax')
     const passcode = mkInput('IVR Passcode');
+    passcode.setAttribute('id', 'passcode');
+
+    const aInputs = document.querySelectorAll('[data="address"]');
+    aInputs.forEach((ainput)=>{
+        ainput.addEventListener('change', ()=>{
+            if (zip.value === ""){
+                // end if we do not have a zipcode
+                return;
+            }
+
+            // remove the icon source because we will update it
+            addressIcon.removeAttribute('src');
+            
+            // functions for address fix
+            function fixAddress(index){
+                address1.value = cData.addresses[index].address1;
+                city.value = cData.addresses[index].city;
+                state.value = cData.addresses[index].state;
+                zip.value = cData.addresses[index].zip;
+                addressIcon.setAttribute('src', checkIcon);
+                ahmContent.innerText = ('Address is valid');
+            };
+
+            function addressSuggestion(index){
+                const addressDataMatch = `
+                    Address Found:<br>
+                    ${cData.addresses[index].address1}<br>
+                    ${cData.addresses[index].city}, ${cData.addresses[index].state}${cData.addresses[index].zip}<br>
+                    Click here to update the address.
+                `;
+                addressIcon.setAttribute('src', triIcon);
+                ahmContent.innerHTML = addressDataMatch;
+                function clickFix(){
+                    fixAddress(index);
+                    ahmContent.removeEventListener('click', clickFix);
+                }
+                ahmContent.addEventListener('click', clickFix);
+            }
+
+            for (let i = 0; i < cData.addresses.length; i += 1){
+                if (address1.value.toUpperCase() === cData.addresses[i].address1.toUpperCase()){
+                    if (zip.value === cData.addresses[i].zip){
+                        // if the address and zipcode match, check if we can change city/state
+                        if (city.value === "" && state.value === ""){
+                            // none already entered, we can change it
+                            fixAddress(i);
+                        } else {
+                            // already got one, let's suggest we change it
+                            addressSuggestion(i);
+                        }
+                        return;
+                    } else {
+                        addressSuggestion(i);
+                        return;
+                    }
+                }
+            }
+            ahmContent.innerText = 'Unable to validate address.';
+            addressIcon.setAttribute('src', errorIcon);
+        });
+    });
+
+    // buttons
+    const btnC = mkDom('div', false, [], ['margin-bottom', 'margin-top', 'flex']);
+    const saveBtn = mkDom('button', 'Save Changes');
+    const bnaBtn = mkDom('button', 'BNA This Number');
+    btnC.appendChild(saveBtn);
+    btnC.appendChild(bnaBtn);
+    bnaL.appendChild(btnC);
+
+    /* RIGHT SIDE */
+    const taxCheck = mkInput('Tax Exempt', bnaR, 'checkbox');
+    taxCheck.setAttribute('disabled', 'true');
+    const notesC = mkDom('div', false, [], ['input-container', 'extra-input-width']);
+    mkDom('label', 'Notes: ', [], [], notesC);
+    const notes = mkDom('textarea', false, [['id', 'notes']]);
+    notesC.appendChild(notes);
+    bnaR.appendChild(notesC);
+    const au = mkInput('Authorized User', bnaR);
+    au.setAttribute('id', 'au');
+    const olec = mkInput('Original LEC', bnaR);
+    olec.setAttribute('id', 'lec');
+    olec.setAttribute('disabled', 'true');
+    const fac = mkInput('Last Facility Called', bnaR);
+    fac.setAttribute('disabled', 'true');
+    fac.setAttribute('id', 'facility');
+    const origfC = mkDom('div', false, [], ['input-container', 'extra-input-width']);
+    mkDom('label', 'Originating Facilities: ', [], [], origfC);
+    const origF = mkDom('select', false, [['id', 'origF'], ['size', '4']]);
+    origfC.appendChild(origF);
+    bnaR.appendChild(origfC);
+    const pclBtnC = mkDom('div', false, [], ['margin-top', 'margin-bottom']);
+    const pclBtn = mkDom('button', 'Policy Check List');
+    pclBtnC.appendChild(pclBtn);
+    bnaR.appendChild(pclBtnC);
+
+    pclBtn.addEventListener('click', ()=>{
+        const pclPc = mkDom('div');
+
+        // set up at own risk
+        const option1 = mkDom('div');
+        pclPc.appendChild(option1);
+        const pol1 =  mkDom('input', false, [['type', 'checkbox']]);
+        option1.appendChild(pol1);
+        mkDom('label', 'Cell phone/VOIP setup at own risk', [], [], option1);
+
+        // service fees
+        const option2 = mkDom('div');
+        pclPc.appendChild(option2);
+        const pol2 =  mkDom('input', false, [['type', 'checkbox']]);
+        option2.appendChild(pol2);
+        mkDom('label', 'Service Fees', [], [], option2);
+
+        // 90 days expiration
+        const option3 = mkDom('div');
+        pclPc.appendChild(option3);
+        const pol3 =  mkDom('input', false, [['type', 'checkbox']]);
+        option3.appendChild(pol3);
+        mkDom('label', '90 Days Account Expiration', [], [], option3);
+
+        // 189 days expiration
+        const option4 = mkDom('div');
+        pclPc.appendChild(option4);
+        const pol4 =  mkDom('input', false, [['type', 'checkbox']]);
+        option4.appendChild(pol4);
+        mkDom('label', '180 Days Account Expiration', [], [], option4);
+
+        function updatePolicies(save=true){
+            if (save === false){
+                pol1.checked = aIndex.policies[0];
+                pol2.checked = aIndex.policies[1];
+                pol3.checked = aIndex.policies[2];
+                pol4.checked = aIndex.policies[3];
+            } else {
+                aIndex.policies[0] = pol1.checked;
+                aIndex.policies[1] = pol2.checked;
+                aIndex.policies[2] = pol3.checked;
+                aIndex.policies[3] = pol4.checked;
+            }
+        }
+
+        if (aIndex === false){
+            // no account is loaded
+        } else {
+            updatePolicies(false);
+        }
+
+        createPopup('Policy Check List', pclPc, 'OK', 'Cancel', updatePolicies);
+    })
 
     
 }
@@ -212,6 +486,16 @@ function mainBar(){
         });
 
         this.classList.add('active');
+        console.log(this.innerText);
+    }
+
+    function returnButton2(){
+        const active = document.querySelectorAll('.active2');
+        active.forEach((item) =>{
+            item.classList.remove('active2');
+        });
+
+        this.classList.add('active2');
         console.log(this.innerText);
     }
 
@@ -237,7 +521,7 @@ function mainBar(){
         }
 
         const newTrans = mkDom('a', trans[i], [['href', '#']]);
-        newTrans.addEventListener('click', returnButton);
+        newTrans.addEventListener('click', returnButton2);
         
         addMenu.appendChild(newTrans);
         
@@ -271,6 +555,10 @@ function mainBar(){
     for (let i = 0; i < items.length; i += 1){
         const newItem = mkDom('a', items[i], [['href', '#']]);
         newItem.addEventListener('click', returnButton);
+
+        if (i === 0){
+            newItem.classList.add('active');
+        }
 
         navContainer.appendChild(newItem);
     }

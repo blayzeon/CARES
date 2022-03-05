@@ -2,12 +2,13 @@
     "accounts": [
         {
             "account": "8004838314",
-            "status": "blocked",
-            "type": "Advance Pay",
-            "crBlock": "true",
-            "ccBlock": "true",
             "policies": ["true", "true", "true", "true"], 
             "bna": {
+                "status": "Blocked",
+                "type": "Advance Pay",
+                "indicator": "Land Line",
+                "crBlock": "true",
+                "ccBlock": "true",
                 "name1": "AP",
                 "name2": "IVR",
                 "address1": "PO BOX 1234",
@@ -21,7 +22,8 @@
                 "tax": "",
                 "passcode": "0000",
                 "notes": "IVR NUMBER - DO NOT SET UP",
-                "lec": "",
+                "au": "NONE",
+                "lec": "Global Tel Link",
                 "facility": "CA_DOC-Valley State Prison (CA28)"
             },
             "comments": [["11/20/2017", "CARES User kristine.carter accessed the account"], ["07/12/2021", "CARES User kristine.carter accessed the account"], ["02/28/2022", "CARES User kristine.carter accessed the account"]],
@@ -30,12 +32,13 @@
         },
         {
             "account": "8889884768",
-            "status": "blocked",
-            "type": "Advance Pay",
-            "crBlock": "true",
-            "ccBlock": "true",
             "policies": ["true", "true", "true", "true"], 
             "bna": {
+                "status": "Blocked",
+                "type": "Advance Pay",
+                "indicator": "Land Line",
+                "crBlock": "true",
+                "ccBlock": "true",
                 "name1": "Trust",
                 "name2": "IVR",
                 "address1": "PO BOX 1234",
@@ -49,6 +52,7 @@
                 "tax": "",
                 "passcode": "0000",
                 "notes": "IVR NUMBER - DO NOT SET UP",
+                "au": "NONE",
                 "lec": "",
                 "facility": "CA_DOC-Valley State Prison (CA28)"
             },
@@ -67,6 +71,22 @@
             "phoneSystem": "GTL",
             "rate": "0.03",
             "fee": "0.00"
+        }
+    ],
+    "addresses": [
+        {
+            "address1": "5959 CORPORATE DR",
+            "address2": "",
+            "zip": "77036",
+            "city": "HOUSTON",
+            "state": "TX"
+        },
+        {
+            "address1": "PO BOX 1234",
+            "address2": "",
+            "zip": "01001",
+            "city": "AGAWAM",
+            "state": "MA"
         }
     ]
 }

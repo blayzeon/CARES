@@ -16,6 +16,14 @@ a{
     color: blue;
 }
 
+textarea{
+    font-size: large;
+}
+
+input, select, textarea, button{
+    margin: 0rem 0.15rem;
+}
+
 .fake-a{
     color: blue;
     text-decoration: underline;
@@ -151,39 +159,112 @@ button, select{
 
 #as-container li{
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
     margin-bottom: 1rem;
 }
 
 #as-bnaT{
+    display: flex;
+    gap: 26rem;
     border: 1px solid black;
     padding: 0px;
     margin: 0px;
 }
 
-#as-bnaL{
+#as-bnaL, #as-bnaR{
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-#as-bnaL label{
-    min-width: 8rem;
+#as-bnaL label, #as-bnaR label{
+    min-width: 10rem;
+    flex: 0 0 auto;
 }
 
-#as-bnaL input{
+#as-bnaL input, #as-bnaR input{
     border: 1px solid black;
     border-radius: 0.15rem;
     padding: 0.2rem;
     font-size: large;
 }
 
+#as-bnaR{
+    margin-right: 25rem;
+}
+
+#address-validation-popup{
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+    text-align: center;
+    background: white;
+    min-height: 80px;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.3rem;
+}
+
+#address-validation-popup *{
+    padding: 0.1rem 0.5rem;
+}
+
+.popup-shape{
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    margin-top: -3rem;
+    margin-left: 4rem;
+    padding: 0.5rem;
+    min-width: 120px;
+    min-height: 80px;
+    background: #eeeeee;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border:radius: 10px;
+}
+
+.popup-shape:before{
+    content: "";
+    position: absolute;
+    right: 100%;
+    top:26px;
+    width: 0;
+    height: 0;
+    border-top: 13px solid transparent;
+    border-right: 26px solid #eeeeee;
+    border-bottom: 13px solid transparent;
+}
+
+#address-validation-popup div:first-child{
+    font-size: small;
+    cursor: pointer;
+    align-self: flex-end;
+    color: blue;
+}
+
+.visible{
+    opacity: 1 !important;
+    pointer-events: auto;
+}
+
+.flex{
+    display: flex;
+    min-width: 20rem !important;
+    gap: 1rem;
+}
+
 .split-input{
     display: flex;
 }
 
-.split-input input:nth-child(1){
+.split-input img{
+    margin-left: 0.8rem;
+}
 
+.half-width{
+    width: 50%;
 }
 
 .split-input input:nth-child(2){
@@ -195,6 +276,22 @@ button, select{
     display: flex;
     width: 15rem;
     justify-content: space-between;
+}
+
+.input-container input[type="checkbox"]{
+    margin-right: 20rem;
+}
+
+.input-container textarea{
+    height: 10rem;
+}
+
+.input-container textarea, .input-container select{
+    width: 100%;
+}
+
+.extra-input-width {
+    width: 30rem !important;
 }
 
 .navy-bg{
@@ -229,4 +326,72 @@ button, select{
 
 .margin-top{
     margin-top: 1rem;
+}
+
+.margin-bottom{
+    margin-bottom: 1rem;
+}
+
+#fader{
+    position: absolute;
+    z-index: 1;
+    min-width: 100%;
+    min-height: 100%;
+    background: rgba(155, 155, 155, 0.5);
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-input-pair {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-right: 30%;
+    margin-bottom: -5px;
+}
+
+.flex-input-pair input[type="checkbox"]{
+    margin-right: 9.9rem;
+}
+
+.flex-input-pair select{
+    width: 56%;
+}
+
+.flex-input-pair textarea{
+    margin-right: -0.35rem;
+}
+
+.grab{
+    cursor: grab;
+    user-select: none;
+}
+
+.popup{
+    position: absolute;
+    z-index: 2;
+    top: 25%;
+    left: 25%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    background-color: rgb(236, 236, 236);
+    border-radius: 0.5rem;
+    filter: drop-shadow(0 0 0.2rem rgba(0, 0, 0, 0.5));
+    border: 3px solid rgb(236, 236, 236);
+    min-width: 450px;
+}
+
+.popup div{
+    padding: 0.2rem;
+}
+
+.popup span{
+    background-color: white;
+    padding-bottom: 2rem;
+    margin-bottom: 1rem;
+    border: 1px solid gray;
 }
