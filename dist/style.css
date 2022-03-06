@@ -1,5 +1,5 @@
 html, body, #container{
-    height: 1503px;
+    min-height: 100%;
     width: 100%;
     box-sizing: border-box;
     padding: 0;
@@ -50,7 +50,7 @@ button, select{
     background: white;
     padding: 0.2rem;
     width: 160px;
-    height: 100%;
+    min-height: 100%;
 }
 
 #sidebar *{
@@ -116,11 +116,12 @@ button, select{
     padding: 0rem 0.5rem;
 }
 
-#nav-container a{
+#nav-container a, .no-link{
     color: black;
     text-decoration: none;
     padding: 0 0.5rem;
     flex: 0 0 auto;
+    cursor: pointer;
 }
 
 #nav-container *.active{
@@ -147,6 +148,18 @@ button, select{
     color: blue;
 }
 
+#nav-alert button{
+    font-weight: normal;
+}
+
+#nav-alert span{
+    color: blue !important;
+}
+
+#notes{
+    resize: none;
+}
+
 #as-container{
     list-style-type: none;
     margin: 0;
@@ -155,6 +168,10 @@ button, select{
 
 #as-container > div{
     padding: 0.5rem 0 0 0.5rem;
+}
+
+#as-container > div:last-child{
+    padding: 0;
 }
 
 #as-container li{
@@ -166,9 +183,9 @@ button, select{
 #as-bnaT{
     display: flex;
     gap: 26rem;
-    border: 1px solid black;
+    border-top: 1px solid black;
     padding: 0px;
-    margin: 0px;
+    margin: 0 0 3rem 0;
 }
 
 #as-bnaL, #as-bnaR{
@@ -209,6 +226,20 @@ button, select{
     padding: 0.1rem 0.5rem;
 }
 
+#as-bnaB *{
+    margin: 0;
+    padding: 0;
+}
+
+#as-bnaB div:nth-child(1){
+    display: flex;
+    text-align: center;
+    align-content: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+}
+
 .popup-shape{
     position: absolute;
     z-index: 1;
@@ -242,6 +273,66 @@ button, select{
     cursor: pointer;
     align-self: flex-end;
     color: blue;
+}
+
+#account-comments table{
+    border-collapse: collapse;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+#account-comments tr:nth-child(even){
+    background: rgba(100, 100, 100, 0.15);
+}
+
+#account-comments td{
+    padding: 0.5rem;
+}
+
+#account-comments td:nth-child(1){
+    background: rgba(100, 100, 100, 0.1);
+}
+
+#account-comments th{
+    background: linear-gradient(0deg, lightgray, white);
+    padding: 0.5rem;
+    border-bottom: 1px solid gray;
+}
+
+.adjustment-popup{
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    position: absolute;
+    z-index: 1;
+    top: 30%;
+    left: 30%;
+    border: 0.3rem solid silver;
+    color: white;
+    padding: 1rem;
+    min-width: 650px;
+    min-height: 250px;
+}
+
+.adjustment-popup div:first-child{
+    display: flex;
+    justify-content: space-between;
+}
+
+
+.adjustment-popup div:first-child button{
+    padding: 0.1rem 0.5rem;
+    margin: 0;
+    border-radius: 3rem;
+}
+
+.adjustment-popup div:nth-child(2){
+    flex: 1;
+}
+
+.adjustment-popup div:last-child{
+    align-self: flex-end;
 }
 
 .visible{
@@ -335,6 +426,7 @@ button, select{
 #fader{
     position: absolute;
     z-index: 1;
+    top: 0;
     min-width: 100%;
     min-height: 100%;
     background: rgba(155, 155, 155, 0.5);
@@ -394,4 +486,15 @@ button, select{
     padding-bottom: 2rem;
     margin-bottom: 1rem;
     border: 1px solid gray;
+}
+
+.strong{
+    font-weight: bold;
+}
+
+.textfield{
+    width: 100%;
+    min-height: 10rem;
+    height: 100%;
+    resize: none;
 }

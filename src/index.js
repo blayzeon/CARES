@@ -2,14 +2,34 @@ import data from "./data.JSON";
 import mkDom from "./mkDom";
 
 /* globals */
+const user = `new.trainee`;
 const mainC = document.querySelector('#maincontent');
 const cData = data;
 let aIndex = false;
+
+// date global
+const dateO = new Date();
+const date = dateO.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+});
 
 // popup function
 function testAlert(){
     alert('yes');
 }
+
+function removeChildren(parent, removeParent=true){
+    while (parent.firstChild){
+        parent.removeChild(parent.lastChild);
+    }
+
+    if (removeParent === true){
+        parent.remove();
+    }
+
+};
 
 function createPopup(top, info, confirm="OK", cancel="Cancel", buttonFunction=testAlert, css=['popup']){
     // create a see-through gray background that prevents the user from clicking other things
@@ -47,8 +67,8 @@ function createPopup(top, info, confirm="OK", cancel="Cancel", buttonFunction=te
     container.appendChild(newPopup);
 
     function deletePopup(){
-        container.removeChild(fader);
-        container.removeChild(newPopup);
+        removeChildren(fader);
+        removeChildren(newPopup);
     };
 
     ok.addEventListener('click', ()=>{
@@ -64,11 +84,12 @@ function createPopup(top, info, confirm="OK", cancel="Cancel", buttonFunction=te
         // signal that the mouse is being held down
         let mouseDown = true;
         const offset = node.clientWidth / 2;
+        const offsetY = node.clientHeight;
 
         onmousemove = function(e){
             if (mouseDown === true){
                 node.style.left = `${e.clientX - offset}px`;
-                node.style.top = `${e.clientY - 20}px`;
+                node.style.top = `${e.clientY}px`;
             }
         }
 
@@ -80,6 +101,59 @@ function createPopup(top, info, confirm="OK", cancel="Cancel", buttonFunction=te
     topbar.addEventListener('mousedown', (e)=>{
         moveItem(newPopup);
     });
+}
+
+function createPopup2(color="#72A3D5", contentNode, titleText="title", submitText="Add Item", closeText="x"){
+    const container = document.createElement('div');
+    container.setAttribute('class', 'adjustment-popup');
+    container.setAttribute('style', `background: ${color}`);
+
+    const top = document.createElement('div');
+    const title = document.createElement('div');
+    title.innerHTML = titleText;
+    const closeBtn = document.createElement('button');
+    closeBtn.innerText = closeText;
+    closeBtn.addEventListener('click', ()=>{
+        removeChildren(container);
+    });
+    top.appendChild(title);
+    top.appendChild(closeBtn);
+
+
+    const mid = document.createElement('div');
+    mid.appendChild(contentNode);
+
+    const bottom = document.createElement('div');
+    const submitBtn = document.createElement('button');
+    submitBtn.innerText = submitText;
+    submitBtn.addEventListener('click', ()=>{
+        removeChildren(container);
+    });
+    bottom.appendChild(submitBtn);
+
+
+    container.appendChild(top);
+    container.appendChild(mid);
+    container.appendChild(bottom);
+
+    document.body.appendChild(container);
+
+    return submitBtn;
+}
+
+function calcBalance(account){
+    const transactions = account.transactions;
+
+    let balance = 0;
+
+    for (let i = 0; i < transactions.length; i += 1){
+        if (transactions[i].calc === 'add'){
+            balance += parseFloat(transactions[i].amount);
+        } else {
+            balance -= parseFloat(transactions[i].amount);
+        }
+    }
+    return balance.toFixed(2);
 }
 
 /* create the sidebar content */
@@ -103,22 +177,144 @@ sidebar.appendChild(sidebarDeposit);
 const sidebarCreateAccount = mkDom('a', 'Create Account', [['href', '#']], []);
 sidebar.appendChild(sidebarCreateAccount);
 
-function updateAs(account){
-    console.log(account);
-    for (let key in account.bna){
-        document.querySelector(`#${key}`).value = account.bna[key];
+function updateAs(account, action="load"){
+    // bna
+    function loadBna(){
+        for (let key in account.bna){
+            document.getElementById('nav-alert').innerText = `Advance Pay account ${sidebarInput.value} loaded successfully.`;
+            document.querySelector(`#${key}`).value = account.bna[key];
+        }
+
+        const balances = document.querySelectorAll('[data="balance"]');
+        balances.forEach((balance)=>{
+            balance.innerText = `$${total}`;
+        });
+    }
+
+    const total = calcBalance(account);
+    function saveBna(){
+        for (let key in account.bna){
+            account.bna[key] = document.querySelector(`#${key}`).value;
+        }
+    }
+
+    // comments
+    function loadComments(){
+        const commentC = document.querySelector('#account-comments');
+        let table = '';
+        for (let i = 0; i < account.comments.length; i += 1){
+            table = `<tr><td>${account.comments[i][0]}</td><td>${user} ${account.comments[i][1]}</td></tr>` + table;   
+        }
+        commentC.innerHTML = `<table><thead><tr><th>Date</th><th>Comment</th></tr></thead><tbody>${table}</body></table>`;
+    }
+
+    function saveComments(comment){
+        account.comments.push([date, comment]);
+        loadComments();
+    }
+
+    if (action === "load"){
+        loadBna();
+        loadComments();
+    } else if (action === "save"){
+        saveBna();
+    } else {
+        saveComments(action);
     }
 }
 
+// lookup button
+sidebarInput.addEventListener('keyup', ()=>{
+    // prevent letters
+    const inputArray = sidebarInput.value.split('');
+    const lastLetter = inputArray[inputArray.length-1];
+    const lastRemoved = inputArray.pop()
+    const numbers = /^[0-9]+$/;
+    if (lastLetter.match(numbers)){
+        // good to go
+        return;
+    } else {
+        sidebarInput.value = inputArray.join('');
+        return;
+    }
+});
+
 sidebarBtn.addEventListener('click', ()=>{
-    for (let i = 0; i < cData.accounts.length; i += 1){
+     for (let i = 0; i < cData.accounts.length; i += 1){
         if (sidebarInput.value === cData.accounts[i].account){
+            // set the account index
             aIndex = cData.accounts[i];
+
+            // set the policies button style
+            const policyBtn = document.getElementById('pcl-btn');
+            if (aIndex.policies.toString() === [true, true, true, true].toString()){
+                policyBtn.setAttribute('style', 'background: rgb(114, 163, 213');
+            } else {
+                policyBtn.removeAttribute('style');
+            }
+
+            // update the account
             updateAs(aIndex);
             return;
         }
     }
-    console.log(false);
+
+    // no account found
+    const index = cData.accounts.length; 
+    cData.accounts.push(
+        {
+            "account": sidebarInput.value,
+            "policies": ["false", "false", "false", "false"], 
+            "bna": {
+                "status": "LEC/Inactive",
+                "type": "",
+                "indicator": "Not Indicated",
+                "crBlock": "false",
+                "ccBlock": "false",
+                "name1": "",
+                "name2": "",
+                "address1": "",
+                "address2": "",
+                "zip": "",
+                "city": "",
+                "state": "",
+                "phone1": sidebarInput.value,
+                "phone2": "",
+                "email": "",
+                "tax": "",
+                "passcode": "",
+                "notes": "",
+                "au": "",
+                "lec": "",
+                "facility": ""
+            },
+            "comments": [],
+            "transactions": [],
+            "calls": []
+        }
+    );
+
+    const msg = document.createElement('span');
+    msg.innerHTML = 'Account not found. Would you like to create one?&nbsp';
+    const btn = document.createElement('button');
+    btn.innerText = 'Create Account';
+
+    const container = document.getElementById('nav-alert');
+    container.innerHTML = '';
+    container.appendChild(msg);
+    container.appendChild(btn);
+
+    btn.addEventListener('click', ()=>{
+        // if account type isn't selected, alert the user
+        if (document.getElementById('type').value === ""){
+            alert('Please select an account type.');
+            return;
+        } else {
+            aIndex = cData.accounts[index];
+            updateAs(aIndex);
+            updateAs(aIndex, `accessed the account`);
+        }
+    }); 
 });
 
 
@@ -181,15 +377,15 @@ function accountSummary(){
 
     // avail bal
     mkDom('label', '<strong>Available: </strong>', [], [], asR4);
-    const aBal = mkDom('span', '$0.00', [], [], asR4);
+    const aBal = mkDom('span', '$0.00', [['data', 'balance']], [], asR4);
 
     // ledger bal
     mkDom('label', '<strong>Ledger: </strong>', [], [], asR4);
-    const lBal = mkDom('span', '$0.00', [], [], asR4);
+    const lBal = mkDom('span', '$0.00', [['data', 'balance']], [], asR4);
 
     // hold bal
     mkDom('label', '<strong>Hold Amount: </strong>', [], [], asR4);
-    const hBal = mkDom('span', '$0.00', [], [], asR4);
+    const hBal = mkDom('span', '$0.00', [['data', 'balance']], [], asR4);
 
     // liability bal
     mkDom('label', '<strong>Liability Limit: </strong>', [], [], asR4);
@@ -233,15 +429,60 @@ function accountSummary(){
     asUl.appendChild(asT);
 
     // main BNA
-    const bnaC = mkDom('div', false, [['id', 'as-bnaT']]);
-    const bnaL = mkDom('div', false, [['id', 'as-bnaL']]);
+    const bnaC = mkDom('div', false, [['id', 'as-bnaT']]); // top bar
+    const bnaL = mkDom('div', false, [['id', 'as-bnaL']]); // left bna
     bnaC.appendChild(bnaL);
-    const bnaR = mkDom('div', false, [['id', 'as-bnaR']]);
+    const bnaR = mkDom('div', false, [['id', 'as-bnaR']]); // right bna
     bnaC.appendChild(bnaR);
-    const bnaB = mkDom('div', false, [['id', 'as-bnaB']]);
-    const bnaBt = mkDom('div', false);
-    bnaB.appendChild(bnaBt);
-    const bnaBb = mkDom('div', false);
+    const bnaB = mkDom('div', false, [['id', 'as-bnaB']]); // account comments
+    const bnaBtopC = mkDom('div', false, [], ['blue2-bg']); // top container
+    bnaB.appendChild(bnaBtopC);
+    mkDom('p', 'Account Comments', [], ['strong'], bnaBtopC); // "account comments"
+    const bnaBaddBtn = mkDom('a', '&nbsp(Add New)', [], ['no-link']); // add new comment
+    bnaBtopC.appendChild(bnaBaddBtn);
+    bnaBaddBtn.addEventListener('click', ()=>{
+        if (aIndex === false){
+            // no account
+            return;
+        } else {
+            const addNewTitle = `Comment Type: <select>
+                    <option></option>
+                    <option>IVR</option>
+                    <option>CreditLimitChange</option>
+                    <option>Complaint</option>
+                    <option>Connect Network</option>
+                    <option>Trust</option>
+                    <option>Chargeback</option>
+                    <option>Inquiry-Payment/Balance</option>
+                    <option>Inquiry-Rates</option>
+                    <option>Inquiry-Refund/Close Account</option>
+                    <option>Account Setup</option>
+                    <option>Block Issue</option>
+                    <option>Wireless Activation Team</option>
+                    <option>Research Team</option>
+                    <option>AP International Team</option>
+                    <option>Fax Team Update</option>
+                    <option>General</option>
+            </select>`;
+            const addNewContent = document.createElement('div');
+            const label = document.createElement('label');
+            label.innerText = 'Comment: ';
+            const commentText = document.createElement('textarea');
+            commentText.setAttribute('class', 'textfield');
+            addNewContent.appendChild(label);
+            addNewContent.appendChild(commentText);
+
+            const popupBtn = createPopup2('#006699', addNewContent, addNewTitle, 'Add Comment');
+            popupBtn.addEventListener('click', ()=>{
+                if (aIndex === false){
+                    return;
+                }
+
+                updateAs(aIndex, commentText.value);
+            });
+        }
+    })
+    const bnaBb = mkDom('div', false, [['id', 'account-comments']]); // for dumping comments
     bnaB.appendChild(bnaBb);
 
     asUl.appendChild(bnaC);
@@ -384,6 +625,13 @@ function accountSummary(){
     // buttons
     const btnC = mkDom('div', false, [], ['margin-bottom', 'margin-top', 'flex']);
     const saveBtn = mkDom('button', 'Save Changes');
+    saveBtn.addEventListener('click', ()=>{
+        if (aIndex === false){
+            return;
+        }
+
+        updateAs(aIndex, 'save')
+    });
     const bnaBtn = mkDom('button', 'BNA This Number');
     btnC.appendChild(saveBtn);
     btnC.appendChild(bnaBtn);
@@ -411,7 +659,7 @@ function accountSummary(){
     origfC.appendChild(origF);
     bnaR.appendChild(origfC);
     const pclBtnC = mkDom('div', false, [], ['margin-top', 'margin-bottom']);
-    const pclBtn = mkDom('button', 'Policy Check List');
+    const pclBtn = mkDom('button', 'Policy Check List', [['id', 'pcl-btn']]);
     pclBtnC.appendChild(pclBtn);
     bnaR.appendChild(pclBtnC);
 
@@ -421,42 +669,62 @@ function accountSummary(){
         // set up at own risk
         const option1 = mkDom('div');
         pclPc.appendChild(option1);
-        const pol1 =  mkDom('input', false, [['type', 'checkbox']]);
-        option1.appendChild(pol1);
+        const pol0 =  mkDom('input', false, [['type', 'checkbox']]);
+        option1.appendChild(pol0);
         mkDom('label', 'Cell phone/VOIP setup at own risk', [], [], option1);
 
         // service fees
         const option2 = mkDom('div');
         pclPc.appendChild(option2);
-        const pol2 =  mkDom('input', false, [['type', 'checkbox']]);
-        option2.appendChild(pol2);
+        const pol1 =  mkDom('input', false, [['type', 'checkbox']]);
+        option2.appendChild(pol1);
         mkDom('label', 'Service Fees', [], [], option2);
 
         // 90 days expiration
         const option3 = mkDom('div');
         pclPc.appendChild(option3);
-        const pol3 =  mkDom('input', false, [['type', 'checkbox']]);
-        option3.appendChild(pol3);
+        const pol2 =  mkDom('input', false, [['type', 'checkbox']]);
+        option3.appendChild(pol2);
         mkDom('label', '90 Days Account Expiration', [], [], option3);
 
         // 189 days expiration
         const option4 = mkDom('div');
         pclPc.appendChild(option4);
-        const pol4 =  mkDom('input', false, [['type', 'checkbox']]);
-        option4.appendChild(pol4);
+        const pol3 =  mkDom('input', false, [['type', 'checkbox']]);
+        option4.appendChild(pol3);
         mkDom('label', '180 Days Account Expiration', [], [], option4);
 
         function updatePolicies(save=true){
+            if (aIndex === false){
+                // no account is loaded
+                return
+            }
+
             if (save === false){
-                pol1.checked = aIndex.policies[0];
-                pol2.checked = aIndex.policies[1];
-                pol3.checked = aIndex.policies[2];
-                pol4.checked = aIndex.policies[3];
+                pol0.checked = aIndex.policies[0];
+                pol1.checked = aIndex.policies[1];
+                pol2.checked = aIndex.policies[2];
+                pol3.checked = aIndex.policies[3];
             } else {
-                aIndex.policies[0] = pol1.checked;
-                aIndex.policies[1] = pol2.checked;
-                aIndex.policies[2] = pol3.checked;
-                aIndex.policies[3] = pol4.checked;
+                const polNodes = [
+                    [pol0.checked, 'PCCellPhone'],
+                    [pol1.checked, 'PCServiceFees'],
+                    [pol2.checked, 'PC90DaysAccountExpiration'],
+                    [pol3.checked, 'PC180DaysAccountExpiration'],
+                ]
+                let changed = [];
+                for (let i = 0; i < aIndex.policies.length; i += 1){
+                    if (polNodes[i][0].toString() !== aIndex.policies[i].toString()){
+                        aIndex.policies[i] = polNodes[i][0];
+                        updateAs(aIndex, `updated the account attribute for ${polNodes[i][1]} to ${polNodes[i][0]}.`);
+                    }
+                }
+                const policyBtn = document.getElementById('pcl-btn');
+                if (aIndex.policies.toString() === [true, true, true, true].toString()){
+                    policyBtn.setAttribute('style', 'background: rgb(114, 163, 213');
+                } else {
+                    policyBtn.removeAttribute('style');
+                }
             }
         }
 
