@@ -178,10 +178,11 @@ const sidebarCreateAccount = mkDom('a', 'Create Account', [['href', '#']], []);
 sidebar.appendChild(sidebarCreateAccount);
 
 function updateAs(account, action="load"){
+    const alertText = document.getElementById('nav-alert');
     // bna
     function loadBna(){
+        alertText.innerText = `Advance Pay account ${sidebarInput.value} loaded successfully.`;
         for (let key in account.bna){
-            document.getElementById('nav-alert').innerText = `Advance Pay account ${sidebarInput.value} loaded successfully.`;
             document.querySelector(`#${key}`).value = account.bna[key];
         }
 
@@ -193,6 +194,7 @@ function updateAs(account, action="load"){
 
     const total = calcBalance(account);
     function saveBna(){
+        alertText.innerText = `Advance Pay account ${sidebarInput.value} saved successfully.`;
         for (let key in account.bna){
             account.bna[key] = document.querySelector(`#${key}`).value;
         }
@@ -294,6 +296,10 @@ sidebarBtn.addEventListener('click', ()=>{
         }
     );
 
+    // empty the BNA 
+    aIndex = cData.accounts[index];
+    updateAs(aIndex);
+
     const msg = document.createElement('span');
     msg.innerHTML = 'Account not found. Would you like to create one?&nbsp';
     const btn = document.createElement('button');
@@ -306,11 +312,12 @@ sidebarBtn.addEventListener('click', ()=>{
 
     btn.addEventListener('click', ()=>{
         // if account type isn't selected, alert the user
-        if (document.getElementById('type').value === ""){
+        const accountTypeValue = document.getElementById('type').value;
+        if (accountTypeValue === ""){
             alert('Please select an account type.');
             return;
         } else {
-            aIndex = cData.accounts[index];
+            updateAs(aIndex, "save");
             updateAs(aIndex);
             updateAs(aIndex, `accessed the account`);
         }
