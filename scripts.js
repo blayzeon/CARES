@@ -1946,6 +1946,114 @@ transactionList.push(
   )
 );
 
+function addCall(facIndex, accountIndex, time) {
+  transactionList.push(
+    new NewTransaction(
+      facs[facIndex].rate,
+      "CallUsage",
+      "",
+      accountList[accountIndex].accountNumber,
+      "HOUPASWVALSQL06"
+    )
+  );
+
+  accountList[accountIndex].callList.push({
+    date: `${currDate} ${time} AM`,
+    id: facs[facIndex].sub,
+    orig: facs[facIndex].orig,
+    pin: 123456,
+    duration: "1m 0s",
+    amt: facs[facIndex].rate.toFixed(2),
+    tax: "0.00",
+    total: facs[facIndex].rate.toFixed(2),
+    start: "D0",
+    end: "HU",
+    type: "H",
+    rate: "7",
+  });
+}
+
+for (let i = 0; i < 4; i += 1) {
+  const time = `${6}:5${i}:${randomNum(5)}${randomNum(9)}`;
+  addCall(0, 14, time);
+}
+
+/* [15] -  2085550903 no call records */
+accountList.push(
+  new NewAccount(
+    2085550903,
+    "Samantha",
+    "Decker",
+    "9218 SUMMERHOUSE RD",
+    "",
+    "03054",
+    "MERRIMACK",
+    "NH",
+    "",
+    "samd03@yahoo.com",
+    "",
+    "lec-inactive",
+    "advancepay",
+    "0.00",
+    "",
+    true,
+    true,
+    true,
+    true
+  )
+);
+
+transactionList.push(
+  new NewTransaction(
+    "0.00",
+    "NewAccount",
+    "",
+    2085550903,
+    "InContactMainAdvancePayIVR",
+    "05/01/2019",
+    "12:35:11 PM"
+  )
+);
+
+transactionList.push(
+  new NewTransaction(
+    "25.00",
+    "Deposit",
+    "",
+    2085550903,
+    "InContactMainAdvancePayIVR",
+    "05/01/2019",
+    "12:35:11 PM"
+  )
+);
+
+transactionList.push(
+  new NewTransaction(
+    "25.00",
+    "AdjustmentDecrease",
+    "",
+    2085550903,
+    "Breakage AMES AdvancePay",
+    "11/01/2019",
+    "12:35:11 PM"
+  )
+);
+
+accountList[15].callList.push({
+  date: `11/01/2019 8:51:35 AM`,
+  id: facs[1].sub,
+  orig: facs[1].orig,
+  pin: 123456,
+  duration: "0m 0s",
+  amt: "0.00",
+  tax: "0.00",
+  total: "0.00",
+  start: "L6",
+  end: "01",
+  type: "H",
+  rate: "7",
+});
+
 // STATIC ACCOUNTS
 
 changeProperty("refund-page-type", "value", "");
